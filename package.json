@@ -1,0 +1,21 @@
+{
+  "name": "worst-user-journey",
+  "version": "1.0.0",
+  "description": "The Internet's Worst User Journey — reconstructs invisible customer harm from seeded telemetry and tells one evidence-backed Ghost Story.",
+  "type": "module",
+  "scripts": {
+    "seed": "node data/generate.js",
+    "dev:server": "node --watch server.js",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm run seed && node data/export-static.js && cd client && npm install && npm run build",
+    "build:static": "npm run seed && node data/export-static.js && cd client && npm install && npm run build",
+    "start": "node server.js",
+    "postinstall": "node data/generate.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

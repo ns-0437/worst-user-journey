@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: worst-user-journey
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # Optional: set ANTHROPIC_API_KEY in the Render dashboard to run the
+      # diagnosis live instead of streaming the pre-baked response.
+      # - key: ANTHROPIC_API_KEY
+      #   sync: false

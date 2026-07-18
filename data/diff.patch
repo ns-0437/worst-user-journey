@@ -1,0 +1,38 @@
+commit c19ab7f2a develop
+Author: payments-team <payments@example.com>
+Date:   2026-07-18 13:40:02 +0000
+
+    feat(payments): auto-retry PSP charges on transient "pending"
+
+    Some charges come back `pending` from the provider before settling.
+    Retry until we get a terminal status so the client always sees success.
+
+diff --git a/src/payments/charge.js b/src/payments/charge.js
+index 4a1c2f0..c19ab7f 100644
+--- a/src/payments/charge.js
++++ b/src/payments/charge.js
+@@ -12,10 +12,23 @@ export async function charge(order, card) {
+-  const result = await psp.charge(order.amount, card);
+-  return { status: result.status, id: result.id };
++  // Retry transient "pending" results until the charge settles.
++  let result = await psp.charge(order.amount, card);
++  let attempt = 1;
++  while (result.status === "pending") {
++    await sleep(attempt * 800);           // linear backoff, no cap
++    result = await psp.charge(order.amount, card);
++    attempt += 1;                         // no max-attempts guard
++  }
++  return { status: result.status, id: result.id };
+ }
+diff --git a/src/checkout/PayButton.jsx b/src/checkout/PayButton.jsx
+index 8f3d9c1..c19ab7f 100644
+--- a/src/checkout/PayButton.jsx
++++ b/src/checkout/PayButton.jsx
+@@ -20,7 +20,7 @@ export function PayButton({ order }) {
+   const onPay = async () => {
+     setBusy(true);
+-    const res = await api.charge(order);   // awaits full retry loop, UI shows nothing
++    const res = await api.charge(order);   // still no pending/interim state rendered
+     setBusy(false);
+     if (res.status === "succeeded") navigate("/thanks");
+   };
