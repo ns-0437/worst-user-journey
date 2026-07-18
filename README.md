@@ -1,5 +1,8 @@
 # The Internet's Worst User Journey
 
+**Live demo:** https://ns-0437.github.io/worst-user-journey/
+**Repo:** https://github.com/ns-0437/worst-user-journey
+
 Finds customers who had a terrible experience even though conventional monitoring
 said the system was healthy. It reconstructs their path, connects it to
 deploy/trace/session signals, and produces one evidence-backed **Ghost Story**
@@ -51,7 +54,22 @@ npm run dev:client     # Vite dev server on :5173 (proxies /api to :3001)
 
 ## Deploy (one URL for judges)
 
-The app is a single Node service that serves both the API and the built client.
+Two supported shapes — the **same React build** runs both ways:
+
+**Static (GitHub Pages) — already live, zero backend.** The build bakes a
+snapshot (`incident.json`, `diagnosis.json`, `diff.txt`) into the client; the UI
+fetches those and simulates the diagnosis stream client-side. To redeploy after a
+change:
+
+```bash
+npm run build
+cd client/dist && git init && git checkout -b gh-pages && git add -A \
+  && git commit -m "deploy" \
+  && git push -f https://github.com/ns-0437/worst-user-journey.git gh-pages
+```
+
+**Full-stack (Render / Docker) — real API + live SSE diagnosis.** The app is a
+single Node service that serves both the API and the built client.
 
 **Render (free, recommended)** — push to GitHub, then either use the included
 `render.yaml` blueprint (New → Blueprint) or create a Web Service manually with:
